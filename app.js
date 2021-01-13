@@ -3,6 +3,9 @@ const cors = require('cors')
 const app = express()
 const joi = require('@hapi/joi')
 
+const expressJWT = require('express-jwt')
+const config = require('./config')
+
 // 解决跨域问题
 app.use(cors())
 // 配置解析 application/x-www-form-urlencoded 格式的表单数据
@@ -20,6 +23,9 @@ app.use((req, res, next) => {
   next()
 })
 
+// 解析 token
+app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//] }))
+
 const userRouter = require('./router/use')
 app.use('/api', userRouter)
 
@@ -27,6 +33,10 @@ app.use('/api', userRouter)
 app.use((err, req, res, next) => {
   // 数据验证失败
   if (err instanceof joi.ValidationError) return res.cc(err)
+
+  // token 解析失败
+  if (err.name === 'UnauthorizedError') return res.cc('身份认证失败！')
+
   // 未知错误
   res.cc(err)
 })

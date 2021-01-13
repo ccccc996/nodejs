@@ -10,6 +10,6 @@ const userHandler = require('../router_handler/use')
 const { reg_login_schema } = require('../schema/use')
 
 router.post('/reguser', expressJoi(reg_login_schema), userHandler.regUser)
-router.post('/login', userHandler.login)
+router.post('/login', expressJoi(reg_login_schema), userHandler.login)
 
 module.exports = router
