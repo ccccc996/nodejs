@@ -1,5 +1,6 @@
 // const { send } = require('process')
 const db = require('../db')
+const bcrypt = require('bcryptjs')
 
 exports.regUser = (req, res) => {
   const userInfo = req.body
@@ -26,7 +27,35 @@ exports.regUser = (req, res) => {
         message: '用户名被占用请更换其他的用户名'
       })
     }
-    res.send('可以注册')
+    // res.send('可以注册')
+    userInfo.password = bcrypt.hashSync(userInfo.password, 10)
+
+    const sql = `insert into ev_user set ?`
+    db.query(
+      sql,
+      {
+        username: userInfo.username,
+        password: userInfo.password
+      },
+      (err, result) => {
+        if (err) {
+          return res.send({
+            status: 1,
+            message: err.message
+          })
+        }
+        if (result.affectedRows !== 1) {
+          return res.send({
+            status: 1,
+            message: '注册用户失败，请稍后重试！'
+          })
+        }
+        res.send({
+          status: 0,
+          message: '注册成功'
+        })
+      }
+    )
   })
 }
 
