@@ -2,6 +2,7 @@
 const db = require('../db')
 const bcrypt = require('bcryptjs')
 
+
 exports.regUser = (req, res) => {
   const userInfo = req.body
   // 1. 检测是否为空

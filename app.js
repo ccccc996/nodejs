@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
+const joi = require('@hapi/joi')
 
 // 解决跨域问题
 app.use(cors())
@@ -21,5 +22,13 @@ app.use((req, res, next) => {
 
 const userRouter = require('./router/use')
 app.use('/api', userRouter)
+
+// 错误中间件
+app.use((err, req, res, next) => {
+  // 数据验证失败
+  if (err instanceof joi.ValidationError) return res.cc(err)
+  // 未知错误
+  res.cc(err)
+})
 
 app.listen(8008, () => console.log('api server running at http://127.0.0.1:8008'))
