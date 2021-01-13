@@ -9,6 +9,16 @@ app.use(express.urlencoded({ extended: false }))
 // 配置解析 json 格式的表单数据
 app.use(express.json())
 
+app.use((req, res, next) => {
+  res.cc = function (err, status = 1) {
+    res.send({
+      status,
+      message: err instanceof Error ? err.message : err
+    })
+  }
+  next()
+})
+
 const userRouter = require('./router/use')
 app.use('/api', userRouter)
 
