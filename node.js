@@ -4,6 +4,10 @@ const express = require('express')
 const cros = require('cors')
 // 创建服务器对象
 const app = express()
+
+// 导入并注册用户路由模块
+const userRouter = require('./router/user')
+app.use('/api', userRouter)
 // 解决跨域问题
 app.use(cros)
 // 配置解析 application/x-www-form-urlencoded 格式的表单数据
