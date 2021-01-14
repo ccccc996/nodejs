@@ -1,47 +1,27 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
-const joi = require('@hapi/joi')
-
 const expressJWT = require('express-jwt')
 const config = require('./config')
 
-// 解决跨域问题
+// #1 解决跨域问题
 app.use(cors())
-// 配置解析 application/x-www-form-urlencoded 格式的表单数据
+
+// #2 配置解析 application/x-www-form-urlencoded 格式 以及 json 格式的表单数据
 app.use(express.urlencoded({ extended: false }))
-// 配置解析 json 格式的表单数据
 app.use(express.json())
 
-app.use((req, res, next) => {
-  res.cc = function (err, status = 1) {
-    res.send({
-      status,
-      message: err instanceof Error ? err.message : err
-    })
-  }
-  next()
-})
+// #3 统一响应，优化 res.send
+app.use(require('./middleware/optimizeSend'))
 
-// 解析 token
+// #4 解析 token
 app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//] }))
 
-const userRouter = require('./router/use')
-app.use('/api', userRouter)
+// #5 自己设置的接口
+app.use('/api', require('./router/use'))
+app.use('/my', require('./router/userinfo'))
 
-// 导入并使用用户信息路由模块
-const userinfoRouter = require('./router/userinfo')
-// 以 /my 开头的接口，都是有权限的接口，需要进行 Token 身份认证
-app.use('/my', userinfoRouter)
-
-// 错误中间件
-app.use((err, req, res, next) => {
-  // 数据验证失败
-  if (err instanceof joi.ValidationError) return res.cc(err)
-  // token 解析失败
-  if (err.name === 'UnauthorizedError') return res.cc('身份认证失败！')
-  // 未知错误
-  res.cc(err)
-})
+// #6 错误中间件
+app.use(require('./middleware/errHandler'))
 
 app.listen(8008, () => console.log('api server running at http://127.0.0.1:8008'))
