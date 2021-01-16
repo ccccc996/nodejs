@@ -23,7 +23,6 @@ app.use('/my', require('./router/userinfo'))
 // 导入并使用文章分类路由模块
 app.use('/my/article', require('./router/artcate'))
 
-
 // #6 错误中间件
 app.use(require('./middleware/errHandler'))
 
