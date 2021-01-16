@@ -9,10 +9,5 @@ const db = mysql.createPool({
   database: 'my_db_01'
 })
 
-// db.query('select 1', (err, result) => {
-//   console.log(err)
-//   console.log(result)
-// })
-
 // 向外共享 db 数据库连接对象
 module.exports = db
